@@ -20,3 +20,7 @@ gopath/
 
 # Go workspace file
 go.work
+.config/
+# SQLite temporary files
+*.db-wal
+*.db-shm
