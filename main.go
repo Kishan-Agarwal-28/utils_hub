@@ -16,6 +16,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
+
 	// "github.com/xuri/excelize/v2"
 	_ "modernc.org/sqlite"
 )
@@ -23,7 +24,7 @@ import (
 type Institution struct {
 	ID    int    `json:"id"`
 	Name  string `json:"name"`
-	State string `json:"state"` 
+	State string `json:"country"` 
 }
 
 var db *sql.DB
@@ -101,10 +102,7 @@ var synonyms = map[string]string{
 	"kaist":  "Korea Advanced Institute of Science and Technology",
 	"snu":    "Seoul National University",
 }
-// var excelFiles = []string{
-// 	"Welcome to UGC, New Delhi, India (1).xlsx",
-// 	// "Welcome to UGC, New Delhi, India.xlsx",
-// }
+
 
 func main() {
 	var err error
@@ -119,8 +117,6 @@ func main() {
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(5)
 	
-	// seedFromExcel()
-
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -192,10 +188,25 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		FROM institutions
 		WHERE institutions MATCH ?
 		ORDER BY
-			bm25(institutions, 10.0, 5.0) ASC,
-			length(name) ASC
+			-- Priority 1: Exact Start Matches ("Cambridge..." is better than "The Cambridge...")
+			(CASE WHEN name LIKE '%s%%' THEN 0 ELSE 1 END) ASC,
+
+			-- Priority 2: Institution Hierarchy (University > College > School)
+			(CASE 
+				WHEN name LIKE '%%University%%' THEN 0 
+				WHEN name LIKE '%%Institute of Technology%%' THEN 1
+				WHEN name LIKE '%%Institute%%' THEN 2
+				WHEN name LIKE '%%College%%' THEN 3
+				ELSE 4 
+			END) ASC,
+
+			-- Priority 3: Shorter names are usually the main institution
+			length(name) ASC,
+
+			-- Priority 4: Standard Text Relevance (BM25)
+			bm25(institutions, 10.0, 5.0) ASC
 		LIMIT %d
-	`, limit)
+	`, query, limit)
 
 	rows, err := db.Query(sqlQuery, query)
 	if err != nil {
@@ -223,79 +234,6 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(results)
 }
-// func seedFromExcel() {
-// 	sqlStmt := `
-// 	CREATE VIRTUAL TABLE IF NOT EXISTS institutions USING fts5(
-// 		name, 
-// 		state, 
-// 		tokenize='trigram'
-// 	);
-// 	`
-// 	_, err := db.Exec(sqlStmt)
-// 	if err != nil {
-// 		log.Fatal("Failed to create table:", err)
-// 	}
-// 	log.Println("🔍 scanning database for existing records...")
-
-// 	existingNames := make(map[string]bool)
-// 	rows, err := db.Query("SELECT name FROM institutions")
-// 	if err != nil {
-// 		log.Fatal("Error reading DB:", err)
-// 	}
-// 	defer rows.Close()
-
-// 	initialCount := 0
-// 	for rows.Next() {
-// 		var n string
-// 		rows.Scan(&n)
-// 		existingNames[strings.TrimSpace(n)] = true
-// 		initialCount++
-// 	}
-// 	log.Printf("✅ Database currently has %d records.", initialCount)
-
-// 	log.Println("📂 Starting incremental import...")
-// 	tx, _ := db.Begin()
-// 	stmt, _ := tx.Prepare("INSERT INTO institutions (name, state) VALUES (?, ?)")
-// 	defer stmt.Close()
-
-// 	addedCount := 0
-
-// 	for _, filename := range excelFiles {
-// 		f, err := excelize.OpenFile(filename)
-// 		if err != nil {
-// 			log.Printf("⚠️ Skip %s: %v", filename, err)
-// 			continue
-// 		}
-// 		defer f.Close()
-
-// 		rows, err := f.GetRows(f.GetSheetName(0))
-// 		if err != nil { continue }
-
-// 		for i, row := range rows {
-// 			if i == 0 || len(row) < 6 { continue }
-
-// 			name := strings.TrimSpace(row[0])
-// 			state := strings.TrimSpace(row[4])
-
-// 			if name == "" { continue }
-
-// 			if existingNames[name] {
-// 				continue
-// 			}
-// 			stmt.Exec(name, state)
-// 			existingNames[name] = true
-// 			addedCount++
-// 		}
-// 	}
-
-// 	tx.Commit()
-
-// 	if addedCount > 0 {
-// 		log.Printf("🎉 Update Complete! Added %d NEW institutions. Total: %d", addedCount, initialCount+addedCount)
-// 	} else {
-// 		log.Println("✅ No new unique institutions found. Database is up to date.")
-// 	}
-// }
 func documentationHandler(w http.ResponseWriter, r *http.Request){
 	const apiDocsHTML = `
 		<!DOCTYPE html>
