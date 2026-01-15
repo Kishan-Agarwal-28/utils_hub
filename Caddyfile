@@ -1,6 +1,12 @@
-# Listen on Port 7999
 :7999 {
-    # 0. Landing Page
+    redir /avatars     /avatars/
+    redir /calendars   /calendars/
+    redir /charts      /charts/
+    redir /github      /github/
+    redir /institutions /institutions/
+    redir /locations   /locations/
+    redir /npm         /npm/
+    
     handle / {
         header Content-Type text/html
         file_server {
