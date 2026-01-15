@@ -1,0 +1,46 @@
+# Listen on Port 7999
+:7999 {
+    # 0. Landing Page
+    handle / {
+        header Content-Type text/html
+        file_server {
+            root ./public
+            index index.html
+        }
+    }
+
+    # 1. Avatars -> 8000
+    handle_path /avatars/* {
+        reverse_proxy localhost:8000
+    }
+
+    # 2. Calendars -> 8001
+    handle_path /calendars/* {
+        reverse_proxy localhost:8001
+    }
+
+    # 3. Charts -> 8002
+    handle_path /charts/* {
+        reverse_proxy localhost:8002
+    }
+
+    # 4. GitHub Stats -> 8003
+    handle_path /github/* {
+        reverse_proxy localhost:8003
+    }
+
+    # 5. Institutions -> 8004
+    handle_path /institutions/* {
+        reverse_proxy localhost:8004
+    }
+
+    # 6. Locations -> 8005
+    handle_path /locations/* {
+        reverse_proxy localhost:8005
+    }
+
+    # 7. NPM Stats -> 8006
+    handle_path /npm/* {
+        reverse_proxy localhost:8006
+    }
+}

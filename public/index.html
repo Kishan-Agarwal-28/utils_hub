@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utils Hub</title>
+    <style>
+        :root {
+            /* GitHub Dark Dimmed Theme Palette */
+            --bg: #0d1117;
+            --card-bg: #161b22;
+            --border: #30363d;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent: #58a6ff;
+            --green: #238636;
+            --hover: #1f2428;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            flex: 1;
+            width: 100%;
+        }
+        
+        /* Header Section */
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 25px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .branding h1 {
+            margin: 0;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .badge {
+            font-size: 12px;
+            background: rgba(56, 139, 253, 0.1);
+            color: var(--accent);
+            padding: 3px 10px;
+            border-radius: 2em;
+            border: 1px solid rgba(56, 139, 253, 0.3);
+            font-weight: 600;
+        }
+
+        .branding p {
+            color: var(--text-muted);
+            margin: 8px 0 0 0;
+            font-size: 15px;
+        }
+
+        .status {
+            font-size: 13px;
+            color: #3fb950;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(63, 185, 80, 0.1);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(63, 185, 80, 0.2);
+        }
+
+        .status::before {
+            content: "";
+            display: block;
+            width: 8px;
+            height: 8px;
+            background: #3fb950;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(63, 185, 80, 0.6);
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        /* Service Cards */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--text-muted);
+            box-shadow: var(--card-shadow);
+            background-color: var(--hover);
+        }
+
+        /* Top accent line on hover */
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: var(--accent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .card:hover::before { opacity: 1; }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .card-desc {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+
+        .link-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .link-text span { transition: transform 0.2s; }
+        .card:hover .link-text span { transform: translateX(4px); }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 13px;
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+        }
+        
+        footer a { color: var(--text-muted); text-decoration: none; border-bottom: 1px dotted var(--text-muted); }
+        footer a:hover { color: var(--accent); border-color: var(--accent); }
+
+        @media (max-width: 600px) {
+            header { flex-direction: column; align-items: flex-start; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="branding">
+            <h1>Utility Hub <span class="badge">v1.0</span></h1>
+            <p>A suite of high-performance developer microservices.</p>
+        </div>
+        <div class="status">All Systems Operational</div>
+    </header>
+
+    <div class="grid">
+        <a href="/github/" class="card">
+            <div class="icon-box">🐙</div>
+            <div class="card-title">GitHub Stats</div>
+            <div class="card-desc">
+                Retro-styled dashboard generator for GitHub profiles. Features commit tracking, timezone-aware activity graphs, and military-style service ribbons.
+            </div>
+            <div class="link-text">Explore Docs <span>→</span></div>
+        </a>
+
+        <a href="/npm/" class="card">
+            <div class="icon-box">📦</div>
+            <div class="card-title">NPM Stats</div>
+            <div class="card-desc">
+                Mission control for package maintainers. Visualizes download trends, registry tenancy metrics, and publishing history with achievement badges.
+            </div>
+            <div class="link-text">Explore Docs <span>→</span></div>
+        </a>
+
+        <a href="/charts/" class="card">
+            <div class="icon-box">📊</div>
+            <div class="card-title">Charts API</div>
+            <div class="card-desc">
+                Server-side rendering engine for Line, Bar, Pie, and Scatter charts. Generates pure SVG output via simple Base64-encoded URL parameters.
+            </div>
+            <div class="link-text">Explore Docs <span>→</span></div>
+        </a>
+
+        <a href="/avatars/" class="card">
+            <div class="icon-box">👤</div>
+            <div class="card-title">Avatars API</div>
+            <div class="card-desc">
+                Generates unique, deterministic SVG avatars in 16 different styles (Pixel, Bauhaus, Retro, etc.) from any input string.
+            </div>
+            <div class="link-text">Explore Docs <span>→</span></div>
+        </a>
+
+        <a href="/calendars/" class="card">
+            <div class="icon-box">📅</div>
+            <div class="card-title">Calendar API</div>
+            <div class="card-desc">
+                Generates valid ICS files and direct "Add to Calendar" links for Google, Outlook, and Office365. Supports recurring events and alarms.
+            </div>
+            <div class="link-text">Explore Docs <span>→</span></div>
+        </a>
+
+        <a href="/locations/" class="card">
+            <div class="icon-box">📍</div>
+            <div class="card-title">City Search API</div>
+            <div class="card-desc">
+                High-performance autocomplete API for searching global cities, states, and countries. Backed by an optimized SQLite database with LRU caching.
+            </div>
+            <div class="link-text">Explore Docs <span>→</span></div>
+        </a>
+
+        <a href="/institutions/" class="card">
+            <div class="icon-box">🏫</div>
+            <div class="card-title">Institutions API</div>
+            <div class="card-desc">
+                Comprehensive search and validation service for global educational institutions and university domains.
+            </div>
+            <div class="link-text">Explore Docs <span>→</span></div>
+        </a>
+    </div>
+</div>
+
+<footer>
+    &copy; 2024  Utility Services. <br>
+    Deployed on Koyeb 
+</footer>
+
+</body>
+</html>
